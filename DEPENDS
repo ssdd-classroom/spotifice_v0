@@ -1,0 +1,13 @@
+# required
+deb:make
+deb:zeroc-ice-all-dev
+deb:zeroc-ice-all-runtime
+deb:python3-zeroc-ice
+deb:python3-gi
+deb:gir1.2-gst-1.0
+deb:gstreamer1.0-plugins-base
+deb:gstreamer1.0-plugins-good
+deb:python3-pytest
+
+# optional
+deb:tmux
