@@ -38,7 +38,7 @@ module Spotifice {
     interface MediaServer extends MusicLibrary, StreamManager {};
 
     interface PlaybackController {
-        void play() throws TrackError, StreamError, PlayerError, BadReference, IOError;
+        void play() throws TrackError, StreamError, PlayerError, BadReference;
         idempotent void stop();
     };
 
