@@ -54,9 +54,8 @@ class MediaServerI(Spotifice.MediaServer):
             title = filepath.stem
             info = Spotifice.TrackInfo(id=track_id, title=title)
             self.tracks[track_id] = (info, str(filepath))
-            logger.info(f"Loaded track '{track_id}'")
 
-        logger.info(f"Total tracks loaded: {len(self.tracks)}")
+        logger.info(f"Load media:  {len(self.tracks)} tracks")
 
     # ---- MusicLibrary ----
     def get_all_tracks(self, current=None):
