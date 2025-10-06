@@ -47,7 +47,7 @@ module Spotifice {
         idempotent TrackInfo get_current_track();
 
         // version 1
-        idempotent void load_playlist(string playlist_id) throws PlaylistError, TrackError;
+        idempotent void load_playlist(string playlist_id) throws TrackError;
     };
 
     interface RenderConnectivity {
