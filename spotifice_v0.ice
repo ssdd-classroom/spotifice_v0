@@ -28,9 +28,9 @@ module Spotifice {
     };
 
     interface StreamManager {
-        void start_stream(string track_id, Ice::Identity media_render_id)
+        idempotent void start_stream(string track_id, Ice::Identity media_render_id)
             throws TrackError, BadIdentity;
-        void stop_stream(Ice::Identity media_render_id);
+        idempotent void stop_stream(Ice::Identity media_render_id);
         AudioChunk get_audio_chunk(Ice::Identity media_render_id, int chunk_size)
             throws IOError, StreamError;
     };
@@ -38,18 +38,21 @@ module Spotifice {
     interface MediaServer extends MusicLibrary, StreamManager {};
 
     interface PlaybackController {
-        void play() throws TrackError, StreamError, PlayerError, BadReference;
+        void play() throws TrackError, StreamError, PlayerError, BadReference, IOError;
         idempotent void stop();
     };
 
     interface ContentManager {
-        void load_track(string track_id) throws TrackError, StreamError;
-        TrackInfo get_current_track();
+        idempotent void load_track(string track_id) throws TrackError, StreamError;
+        idempotent TrackInfo get_current_track();
+
+        // version 1
+        idempotent void load_playlist(string playlist_id) throws PlaylistError, TrackError;
     };
 
     interface RenderConnectivity {
-        void bind_media_server(MediaServer* media_server) throws BadReference;
-        void unbind_media_server();
+        idempotent void bind_media_server(MediaServer* media_server) throws BadReference;
+        idempotent void unbind_media_server();
     };
 
     interface MediaRender extends PlaybackController, ContentManager, RenderConnectivity {};
