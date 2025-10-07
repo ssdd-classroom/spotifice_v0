@@ -5,6 +5,7 @@ module Spotifice {
     class TrackInfo {
         string id;
         string title;
+        string path;
     };
 
     sequence<byte> AudioChunk;
@@ -29,7 +30,7 @@ module Spotifice {
 
     interface StreamManager {
         idempotent void start_stream(string track_id, Ice::Identity media_render_id)
-            throws TrackError, BadIdentity;
+            throws TrackError, BadIdentity, IOError;
         idempotent void stop_stream(Ice::Identity media_render_id);
         AudioChunk get_audio_chunk(Ice::Identity media_render_id, int chunk_size)
             throws IOError, StreamError;

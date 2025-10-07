@@ -42,7 +42,7 @@ class MusicLibraryTests(TestServer):
 class StreamManagerTests(TestServer):
     def test_start_stream_wrong_track(self):
         track_id = 'bad-track-id'
-        render_id = self.client_ic.stringToIdentity('bad-renderer-id')
+        render_id = self.client_ic.stringToIdentity('bad-render-id')
 
         with self.assertRaises(Spotifice.TrackError) as cm:
             self.sut.start_stream(track_id, render_id)
@@ -59,7 +59,7 @@ class StreamManagerTests(TestServer):
             self.sut.start_stream(track_id, render_id)
 
         self.assertEqual(cm.exception.item, '')
-        self.assertEqual(cm.exception.reason, 'Invalid renderer ID')
+        self.assertEqual(cm.exception.reason, 'Invalid render ID')
 
     def test_get_audio_chunk(self):
         track_id = self.sut.get_all_tracks()[0].id
@@ -82,4 +82,4 @@ class StreamManagerTests(TestServer):
             self.sut.get_audio_chunk(render_id, 1024)
 
         self.assertEqual(cm.exception.item, 'missing-render-id')
-        self.assertEqual(cm.exception.reason, 'No started stream for renderer')
+        self.assertEqual(cm.exception.reason, 'No started stream for render')
