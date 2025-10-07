@@ -92,7 +92,7 @@ class GstPlayer(threading.Thread):
         assert self.get_chunk_hook
 
         chunk_size = length if length > 0 else self.CHUNK_SIZE
-        if (chunk := self.get_chunk_hook(chunk_size)) is None:
+        if not (chunk := self.get_chunk_hook(chunk_size)):
             src.emit('end-of-stream')
             logger.info("Stream exhaused.")
             self.command_queue.put('STOP')
