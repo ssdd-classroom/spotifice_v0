@@ -145,7 +145,6 @@ class GstPlayer(threading.Thread):
 
         return state_map.get(state.state)
 
-
     def is_playing(self):
         return self.play_confirmed_e.is_set()
 

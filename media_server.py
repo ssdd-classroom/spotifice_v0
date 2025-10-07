@@ -21,7 +21,7 @@ class StreamState:
         try:
             self.file = open(path, 'rb')
         except Exception as e:
-            raise Spotifice.IOError(path, f"Error opening media file: {e}")
+            raise Spotifice.IOError(str(path), f"Error opening media file: {e}")
 
     def close(self):
         try:
@@ -36,7 +36,7 @@ class StreamState:
 
 class MediaServerI(Spotifice.MediaServer):
     def __init__(self, media_dir):
-        self.media_dir = media_dir
+        self.media_dir = Path(media_dir)
         self.tracks = {}
         self.active_streams = {}  # media_render_id -> StreamState
         self.load_media()
@@ -50,12 +50,15 @@ class MediaServerI(Spotifice.MediaServer):
             if not filepath.is_file() or filepath.suffix.lower() != ".mp3":
                 continue
 
-            track_id = filepath.name
-            title = filepath.stem
-            self.tracks[track_id] = Spotifice.TrackInfo(
-                id=track_id, title=title, path=str(filepath))
+            self.tracks[filepath.name] = self.track_info(filepath)
 
         logger.info(f"Load media:  {len(self.tracks)} tracks")
+
+    def track_info(self, filepath):
+        track_id = filepath.name
+        title = filepath.stem
+        return  Spotifice.TrackInfo(
+            id=track_id, title=title, filename=str(filepath.name))
 
     # ---- MusicLibrary ----
     def get_all_tracks(self, current=None):
@@ -73,7 +76,8 @@ class MediaServerI(Spotifice.MediaServer):
         if not render_id.name:
             raise Spotifice.BadIdentity(str_render_id, "Invalid render ID")
 
-        self.active_streams[str_render_id] = StreamState(self.tracks[track_id].path)
+        self.active_streams[str_render_id] = StreamState(
+            self.media_dir/self.tracks[track_id].filename)
 
         logger.info("Started stream for track '{}' on render '{}'".format(
             track_id, id2str(render_id)))

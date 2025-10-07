@@ -5,7 +5,7 @@ module Spotifice {
     class TrackInfo {
         string id;
         string title;
-        string path;
+        string filename;
     };
 
     sequence<byte> AudioChunk;
