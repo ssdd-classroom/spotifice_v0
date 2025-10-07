@@ -15,23 +15,23 @@ logger = logging.getLogger("MediaServer")
 
 
 class StreamState:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, filepath):
+        self.filepath = filepath
 
         try:
-            self.file = open(path, 'rb')
+            self.file = open(filepath, 'rb')
         except Exception as e:
-            raise Spotifice.IOError(str(path), f"Error opening media file: {e}")
+            raise Spotifice.IOError(str(filepath), f"Error opening media file: {e}")
 
     def close(self):
         try:
             if self.file:
                 self.file.close()
         except Exception as e:
-            logger.error(f"Error closing file for track '{self.path}': {e}")
+            logger.error(f"Error closing file for track '{self.filepath}': {e}")
 
     def __repr__(self):
-        return f"<StreamState '{self.path}'>"
+        return f"<StreamState '{self.filepath}'>"
 
 
 class MediaServerI(Spotifice.MediaServer):
