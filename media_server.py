@@ -54,7 +54,8 @@ class MediaServerI(Spotifice.MediaServer):
 
         logger.info(f"Load media:  {len(self.tracks)} tracks")
 
-    def track_info(self, filepath):
+    @staticmethod
+    def track_info(filepath):
         track_id = filepath.name
         title = filepath.stem
         return  Spotifice.TrackInfo(
@@ -70,25 +71,23 @@ class MediaServerI(Spotifice.MediaServer):
 
     # ---- StreamManager ----
     def start_stream(self, track_id, render_id, current=None):
-        self.ensure_track_exists(track_id)
         str_render_id = id2str(render_id)
+        self.ensure_track_exists(track_id)
 
         if not render_id.name:
-            raise Spotifice.BadIdentity(str_render_id, "Invalid render ID")
+            raise Spotifice.BadIdentity(str_render_id, "Invalid render identity")
 
         self.active_streams[str_render_id] = StreamState(
             self.media_dir/self.tracks[track_id].filename)
 
         logger.info("Started stream for track '{}' on render '{}'".format(
-            track_id, id2str(render_id)))
+            track_id, str_render_id))
 
     def stop_stream(self, render_id, current=None):
         str_render_id = id2str(render_id)
-        stream_state = self.active_streams.pop(str_render_id, None)
-        if stream_state:
+        if stream_state := self.active_streams.pop(str_render_id, None):
             stream_state.close()
-
-        logger.info(f"Stopped stream for render '{str_render_id}'")
+            logger.info(f"Stopped stream for render '{str_render_id}'")
 
     def get_audio_chunk(self, render_id, chunk_size, current=None):
         str_render_id = id2str(render_id)

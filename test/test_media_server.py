@@ -59,7 +59,7 @@ class StreamManagerTests(TestServer):
             self.sut.start_stream(track_id, render_id)
 
         self.assertEqual(cm.exception.item, '')
-        self.assertEqual(cm.exception.reason, 'Invalid render ID')
+        self.assertEqual(cm.exception.reason, 'Invalid render identity')
 
     def test_get_audio_chunk(self):
         track_id = self.sut.get_all_tracks()[0].id
