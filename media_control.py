@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 from time import sleep
 
 import Ice
@@ -8,16 +9,26 @@ Ice.loadSlice('-I{} spotifice_v0.ice'.format(Ice.getSliceDir()))
 import Spotifice  # type: ignore # noqa: E402
 
 
-def main(ic):
-    proxy = ic.stringToProxy('mediaServer1:tcp -p 10000')
-    server = Spotifice.MediaServerPrx.checkedCast(proxy)
-    if not server:
-        raise RuntimeError('Invalid proxy for MediaServer')
+def get_proxy(ic, property, cls):
+    proxy = ic.propertyToProxy(property)
 
-    proxy = ic.stringToProxy('mediaRender1:tcp -p 10001')
-    render = Spotifice.MediaRenderPrx.checkedCast(proxy)
-    if not render:
-        raise RuntimeError('Invalid proxy for MediaRender')
+    for _ in range(5):
+        try:
+            proxy.ice_ping()
+            break
+        except Ice.ConnectionRefusedException:
+            sleep(0.5)
+
+    object = cls.checkedCast(proxy)
+    if object is None:
+        raise RuntimeError(f'Invalid proxy for {property}')
+
+    return object
+
+
+def main(ic):
+    server = get_proxy(ic, 'MediaServer.Proxy', Spotifice.MediaServerPrx)
+    render = get_proxy(ic, 'MediaRender.Proxy', Spotifice.MediaRenderPrx)
 
     print("Fetching all tracks...")
     tracks = server.get_all_tracks()
@@ -46,5 +57,5 @@ def main(ic):
 
 
 if __name__ == '__main__':
-    with Ice.initialize() as communicator:
+    with Ice.initialize(sys.argv[1]) as communicator:
         main(communicator)
