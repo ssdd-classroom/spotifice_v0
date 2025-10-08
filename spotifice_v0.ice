@@ -16,12 +16,12 @@ module Spotifice {
         string reason;
     };
 
-    exception TrackError extends Error{};
-    exception StreamError extends Error{};
-    exception BadReference extends Error{};
-    exception BadIdentity extends Error{};
-    exception PlayerError extends Error{};
     exception IOError extends Error{};
+    exception BadIdentity extends Error{};
+    exception BadReference extends Error{};
+    exception PlayerError extends Error{};
+    exception StreamError extends Error{};
+    exception TrackError extends Error{};
 
     interface MusicLibrary {
         TrackInfoSeq get_all_tracks() throws IOError;
@@ -30,7 +30,7 @@ module Spotifice {
 
     interface StreamManager {
         idempotent void start_stream(string track_id, Ice::Identity media_render_id)
-            throws TrackError, BadIdentity, IOError;
+            throws BadIdentity, IOError, TrackError;
         idempotent void stop_stream(Ice::Identity media_render_id);
         AudioChunk get_audio_chunk(Ice::Identity media_render_id, int chunk_size)
             throws IOError, StreamError;
@@ -39,12 +39,13 @@ module Spotifice {
     interface MediaServer extends MusicLibrary, StreamManager {};
 
     interface PlaybackController {
-        void play() throws TrackError, StreamError, PlayerError, BadReference, IOError;
-        idempotent void stop();
+        void play() throws BadReference, IOError, PlayerError, StreamError, TrackError;
+        idempotent void stop() throws PlayerError;
     };
 
     interface ContentManager {
-        idempotent void load_track(string track_id) throws TrackError, StreamError;
+        idempotent void load_track(string track_id) throws
+            BadReference, PlayerError, StreamError, TrackError;
         idempotent TrackInfo get_current_track();
     };
 
