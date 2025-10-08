@@ -22,19 +22,19 @@ def main(ic):
     print("Fetching all tracks...")
     tracks = server.get_all_tracks()
     for t in tracks:
-        print(f"- {t.id}: {t.title}")
+        print(f"- {t.title}")
 
     if not tracks:
         print("No tracks found.")
         return
 
     print(f"Requesting info for track {tracks[0].id}")
-    print(f"Track info: {tracks[0].id} - {tracks[0].title}")
-    print("Loading track into MediaRender...")
+    print(f"Track title: {tracks[0].title}")
 
     render.bind_media_server(server)
     render.stop()
 
+    print("Loading track into MediaRender...")
     render.load_track(tracks[0].id)
     render.play()
     sleep(5)  # Let it play for 5 seconds
