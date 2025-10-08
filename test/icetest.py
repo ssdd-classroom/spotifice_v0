@@ -1,11 +1,12 @@
 import time
 from functools import cached_property
 from threading import Thread
+from unittest import TestCase
 
 import Ice
 
 
-class IceTestMixin:
+class IceTestCase(TestCase):
     def ice_initialize_with_props(self, props_dict):
         init_data = Ice.InitializationData()
         init_data.properties = Ice.createProperties()

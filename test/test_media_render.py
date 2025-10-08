@@ -1,14 +1,12 @@
-from unittest import TestCase
-
 from gst_player import GstPlayer
 from media_render import Spotifice
 from media_render import main as render_main
 from media_server import main as server_main
 
-from . import icetest
+from .icetest import IceTestCase
 
 
-class TestRender(TestCase, icetest.IceTestMixin):
+class TestRender(IceTestCase):
     render_port = 10001
     server_port = 10000
 

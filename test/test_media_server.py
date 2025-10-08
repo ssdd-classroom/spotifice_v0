@@ -1,13 +1,11 @@
-from unittest import TestCase
-
 import Ice
 
 from media_server import Spotifice, main
 
-from . import icetest
+from .icetest import IceTestCase
 
 
-class TestServer(TestCase, icetest.IceTestMixin):
+class TestServer(IceTestCase):
     server_port = 10000
 
     def setUp(self):
