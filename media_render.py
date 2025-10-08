@@ -32,12 +32,7 @@ class MediaRenderI(Spotifice.MediaRender):
     def play(self, current=None):
         def get_chunk_hook(chunk_size):
             try:
-                chunk = self.server.get_audio_chunk(current.id, chunk_size)
-                if not chunk:
-                    return
-
-                return chunk
-
+                return self.server.get_audio_chunk(current.id, chunk_size)
             except Spotifice.IOError as e:
                 logger.error(e)
             except Ice.Exception as e:
@@ -45,13 +40,18 @@ class MediaRenderI(Spotifice.MediaRender):
 
         assert current, "remote invocation required"
 
+        self.ensure_player_stopped()
         self.ensure_server_bound()
 
         if not self.current_track:
             raise Spotifice.TrackError(reason="No track loaded")
 
-        self.ensure_player_stopped()
-        self.server.start_stream(self.current_track.id, current.id)
+        try:
+            self.server.start_stream(self.current_track.id, current.id)
+        except Spotifice.BadIdentity as e:
+            logger.error(f"Error starting stream: {e.reason}")
+            raise Spotifice.StreamError(reason="Strean setup failed")
+
         self.player.configure(get_chunk_hook)
         if not self.player.confirm_play_starts():
             raise Spotifice.PlayerError(reason="Failed to confirm playback")
