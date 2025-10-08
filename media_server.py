@@ -22,7 +22,7 @@ class StreamedFile:
         try:
             self.file = open(filepath, 'rb')
         except Exception as e:
-            raise Spotifice.IOError(str(filepath), f"Error opening media file: {e}")
+            raise Spotifice.IOError(track_info.filename, f"Error opening media file: {e}")
 
     def read(self, size):
         return self.file.read(size)
@@ -60,10 +60,10 @@ class MediaServerI(Spotifice.MediaServer):
 
     @staticmethod
     def track_info(filepath):
-        track_id = filepath.name
-        title = filepath.stem
         return  Spotifice.TrackInfo(
-            id=track_id, title=title, filename=str(filepath.name))
+            id=filepath.name,
+            title=filepath.stem,
+            filename=filepath.name)
 
     # ---- MusicLibrary ----
     def get_all_tracks(self, current=None):
@@ -109,7 +109,7 @@ class MediaServerI(Spotifice.MediaServer):
 
         except Exception as e:
             raise Spotifice.IOError(
-                streamed_file.track.id, f"Error reading file: {e}")
+                streamed_file.track.filename, f"Error reading file: {e}")
 
 
 def main(ic):

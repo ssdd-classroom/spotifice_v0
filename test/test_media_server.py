@@ -21,7 +21,7 @@ class TestServer(IceTestCase):
 class MusicLibraryTests(TestServer):
     def test_get_all_tracks(self):
         tracks = self.sut.get_all_tracks()
-        self.assertEqual(len(tracks), 3)
+        self.assertEqual(len(tracks), 4)
         self.assertEqual(tracks[0].id, '1s.mp3')
 
     def test_get_track_info(self):
@@ -61,7 +61,7 @@ class StreamManagerTests(TestServer):
 
     def test_get_audio_chunk(self):
         track_id = self.sut.get_all_tracks()[0].id
-        render_id = Ice.Identity(name='test-render-id')
+        render_id = Ice.Identity(name='fake-render-id')
 
         self.sut.start_stream(track_id, render_id)
         chunk = self.sut.get_audio_chunk(render_id, 1024)
