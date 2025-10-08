@@ -14,31 +14,35 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("MediaServer")
 
 
-class StreamState:
-    def __init__(self, filepath):
-        self.filepath = filepath
+class StreamedFile:
+    def __init__(self, track_info, media_dir):
+        self.track = track_info
+        filepath = media_dir / track_info.filename
 
         try:
             self.file = open(filepath, 'rb')
         except Exception as e:
             raise Spotifice.IOError(str(filepath), f"Error opening media file: {e}")
 
+    def read(self, size):
+        return self.file.read(size)
+
     def close(self):
         try:
             if self.file:
                 self.file.close()
         except Exception as e:
-            logger.error(f"Error closing file for track '{self.filepath}': {e}")
+            logger.error(f"Error closing file for track '{self.track.id}': {e}")
 
     def __repr__(self):
-        return f"<StreamState '{self.filepath}'>"
+        return f"<StreamState '{self.track.id}'>"
 
 
 class MediaServerI(Spotifice.MediaServer):
     def __init__(self, media_dir):
         self.media_dir = Path(media_dir)
         self.tracks = {}
-        self.active_streams = {}  # media_render_id -> StreamState
+        self.active_streams = {}  # media_render_id -> StreamedFile
         self.load_media()
 
     def ensure_track_exists(self, track_id):
@@ -77,8 +81,8 @@ class MediaServerI(Spotifice.MediaServer):
         if not render_id.name:
             raise Spotifice.BadIdentity(str_render_id, "Invalid render identity")
 
-        self.active_streams[str_render_id] = StreamState(
-            self.media_dir/self.tracks[track_id].filename)
+        self.active_streams[str_render_id] = StreamedFile(
+            self.tracks[track_id], self.media_dir)
 
         logger.info("Started stream for track '{}' on render '{}'".format(
             track_id, str_render_id))
@@ -92,20 +96,20 @@ class MediaServerI(Spotifice.MediaServer):
     def get_audio_chunk(self, render_id, chunk_size, current=None):
         str_render_id = id2str(render_id)
         try:
-            stream_state = self.active_streams[str_render_id]
+            streamed_file = self.active_streams[str_render_id]
         except KeyError:
             raise Spotifice.StreamError(str_render_id, "No started stream for render")
 
         try:
-            data = stream_state.file.read(chunk_size)
+            data = streamed_file.read(chunk_size)
             if not data:
-                logger.info(f"Track exhausted: '{stream_state.track_id}'")
+                logger.info(f"Track exhausted: '{streamed_file.track.id}'")
                 self.stop_stream(render_id, current)
             return data
 
         except Exception as e:
             raise Spotifice.IOError(
-                stream_state.track_id, f"Error reading file: {e}")
+                streamed_file.track.id, f"Error reading file: {e}")
 
 
 def main(ic):
