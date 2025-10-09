@@ -73,11 +73,11 @@ class StreamManagerTests(TestServer):
             expected = f.read(len(chunk))
             self.assertEqual(chunk, expected)
 
-    def test_get_audio_chunk_not_started_stream(self):
+    def test_get_audio_chunk_not_open_stream(self):
         render_id = Ice.Identity(name='missing-render-id')
 
         with self.assertRaises(Spotifice.StreamError) as cm:
             self.sut.get_audio_chunk(render_id, 1024)
 
         self.assertEqual(cm.exception.item, 'missing-render-id')
-        self.assertEqual(cm.exception.reason, 'No started stream for render')
+        self.assertEqual(cm.exception.reason, 'No open stream for render')
