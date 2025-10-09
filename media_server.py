@@ -84,21 +84,21 @@ class MediaServerI(Spotifice.MediaServer):
         self.active_streams[str_render_id] = StreamedFile(
             self.tracks[track_id], self.media_dir)
 
-        logger.info("Started stream for track '{}' on render '{}'".format(
+        logger.info("Open stream for track '{}' on render '{}'".format(
             track_id, str_render_id))
 
     def close_stream(self, render_id, current=None):
         str_render_id = id2str(render_id)
         if stream_state := self.active_streams.pop(str_render_id, None):
             stream_state.close()
-            logger.info(f"Stopped stream for render '{str_render_id}'")
+            logger.info(f"Closed stream for render '{str_render_id}'")
 
     def get_audio_chunk(self, render_id, chunk_size, current=None):
         str_render_id = id2str(render_id)
         try:
             streamed_file = self.active_streams[str_render_id]
         except KeyError:
-            raise Spotifice.StreamError(str_render_id, "No started stream for render")
+            raise Spotifice.StreamError(str_render_id, "No open stream for render")
 
         try:
             data = streamed_file.read(chunk_size)
