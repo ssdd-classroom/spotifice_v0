@@ -44,8 +44,8 @@ module Spotifice {
     };
 
     interface ContentManager {
-        idempotent void load_track(string track_id) throws
-            BadReference, PlayerError, StreamError, TrackError;
+        idempotent void load_track(string track_id)
+            throws BadReference, PlayerError, StreamError, TrackError;
         idempotent TrackInfo get_current_track();
     };
 
