@@ -47,7 +47,7 @@ class MediaRenderI(Spotifice.MediaRender):
             raise Spotifice.TrackError(reason="No track loaded")
 
         try:
-            self.server.start_stream(self.current_track.id, current.id)
+            self.server.open_stream(self.current_track.id, current.id)
         except Spotifice.BadIdentity as e:
             logger.error(f"Error starting stream: {e.reason}")
             raise Spotifice.StreamError(reason="Strean setup failed")
@@ -58,7 +58,7 @@ class MediaRenderI(Spotifice.MediaRender):
 
     def stop(self, current=None):
         if self.server and current:
-            self.server.stop_stream(current.id)
+            self.server.close_stream(current.id)
 
         if not self.player.stop():
             raise Spotifice.PlayerError(reason="Failed to confirm stop")

@@ -74,7 +74,7 @@ class MediaServerI(Spotifice.MediaServer):
         return self.tracks[track_id]
 
     # ---- StreamManager ----
-    def start_stream(self, track_id, render_id, current=None):
+    def open_stream(self, track_id, render_id, current=None):
         str_render_id = id2str(render_id)
         self.ensure_track_exists(track_id)
 
@@ -87,7 +87,7 @@ class MediaServerI(Spotifice.MediaServer):
         logger.info("Started stream for track '{}' on render '{}'".format(
             track_id, str_render_id))
 
-    def stop_stream(self, render_id, current=None):
+    def close_stream(self, render_id, current=None):
         str_render_id = id2str(render_id)
         if stream_state := self.active_streams.pop(str_render_id, None):
             stream_state.close()
@@ -104,7 +104,7 @@ class MediaServerI(Spotifice.MediaServer):
             data = streamed_file.read(chunk_size)
             if not data:
                 logger.info(f"Track exhausted: '{streamed_file.track.id}'")
-                self.stop_stream(render_id, current)
+                self.close_stream(render_id, current)
             return data
 
         except Exception as e:

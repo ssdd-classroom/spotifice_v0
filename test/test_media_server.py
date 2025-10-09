@@ -38,23 +38,23 @@ class MusicLibraryTests(TestServer):
 
 
 class StreamManagerTests(TestServer):
-    def test_start_stream_wrong_track(self):
+    def test_open_stream_wrong_track(self):
         track_id = 'bad-track-id'
         render_id = self.client_ic.stringToIdentity('bad-render-id')
 
         with self.assertRaises(Spotifice.TrackError) as cm:
-            self.sut.start_stream(track_id, render_id)
+            self.sut.open_stream(track_id, render_id)
 
         self.assertEqual(cm.exception.item, 'bad-track-id')
         self.assertEqual(cm.exception.reason, 'Track not found')
 
-    def test_start_stream_wrong_render(self):
+    def test_open_stream_wrong_render(self):
         tracks = self.sut.get_all_tracks()
         track_id = tracks[0].id
         render_id = Ice.Identity(name='')
 
         with self.assertRaises(Spotifice.BadIdentity) as cm:
-            self.sut.start_stream(track_id, render_id)
+            self.sut.open_stream(track_id, render_id)
 
         self.assertEqual(cm.exception.item, '')
         self.assertEqual(cm.exception.reason, 'Invalid render identity')
@@ -63,7 +63,7 @@ class StreamManagerTests(TestServer):
         track_id = self.sut.get_all_tracks()[0].id
         render_id = Ice.Identity(name='fake-render-id')
 
-        self.sut.start_stream(track_id, render_id)
+        self.sut.open_stream(track_id, render_id)
         chunk = self.sut.get_audio_chunk(render_id, 1024)
 
         self.assertGreater(len(chunk), 0)

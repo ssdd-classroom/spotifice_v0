@@ -29,9 +29,9 @@ module Spotifice {
     };
 
     interface StreamManager {
-        idempotent void start_stream(string track_id, Ice::Identity media_render_id)
+        idempotent void open_stream(string track_id, Ice::Identity media_render_id)
             throws BadIdentity, IOError, TrackError;
-        idempotent void stop_stream(Ice::Identity media_render_id);
+        idempotent void close_stream(Ice::Identity media_render_id);
         AudioChunk get_audio_chunk(Ice::Identity media_render_id, int chunk_size)
             throws IOError, StreamError;
     };
