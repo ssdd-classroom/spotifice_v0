@@ -38,9 +38,9 @@ module Spotifice {
 
     interface MediaServer extends MusicLibrary, StreamManager {};
 
-    interface PlaybackController {
-        void play() throws BadReference, IOError, PlayerError, StreamError, TrackError;
-        idempotent void stop() throws PlayerError;
+    interface RenderConnectivity {
+        idempotent void bind_media_server(MediaServer* media_server) throws BadReference;
+        idempotent void unbind_media_server();
     };
 
     interface ContentManager {
@@ -49,10 +49,10 @@ module Spotifice {
         idempotent TrackInfo get_current_track();
     };
 
-    interface RenderConnectivity {
-        idempotent void bind_media_server(MediaServer* media_server) throws BadReference;
-        idempotent void unbind_media_server();
+    interface PlaybackController {
+        void play() throws BadReference, IOError, PlayerError, StreamError, TrackError;
+        idempotent void stop() throws PlayerError;
     };
 
-    interface MediaRender extends PlaybackController, ContentManager, RenderConnectivity {};
+    interface MediaRender extends RenderConnectivity, ContentManager,  PlaybackController {};
 };

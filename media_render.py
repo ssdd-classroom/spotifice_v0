@@ -29,6 +29,41 @@ class MediaRenderI(Spotifice.MediaRender):
         if not self.server:
             raise Spotifice.BadReference(reason="No MediaServer bound")
 
+    # --- RenderConnectivity ---
+
+    def bind_media_server(self, media_server, current=None):
+        try:
+            proxy = media_server.ice_timeout(500)
+            proxy.ice_ping()
+        except Ice.ConnectionRefusedException as e:
+            raise Spotifice.BadReference(reason=f"MediaServer not reachable: {e}")
+
+        self.server = media_server
+        logger.info(f"Bound to MediaServer '{id2str(media_server.ice_getIdentity())}'")
+
+    def unbind_media_server(self, current=None):
+        self.server = None
+        logger.info("Unbound MediaServer")
+
+    # --- ContentManager ---
+
+    def load_track(self, track_id, current=None):
+        self.ensure_server_bound()
+        self.ensure_player_stopped()
+
+        try:
+            self.current_track = self.server.get_track_info(track_id)
+            logger.info(f"Current track set to: {self.current_track.title}")
+
+        except Spotifice.TrackError as e:
+            logger.error(f"Error setting track: {e.reason}")
+            raise
+
+    def get_current_track(self, current=None):
+        return self.current_track
+
+    # --- PlaybackController ---
+
     def play(self, current=None):
         def get_chunk_hook(chunk_size):
             try:
@@ -64,37 +99,6 @@ class MediaRenderI(Spotifice.MediaRender):
             raise Spotifice.PlayerError(reason="Failed to confirm stop")
 
         logger.info("Stopped")
-
-    # --- ContentManager ---
-    def load_track(self, track_id, current=None):
-        self.ensure_server_bound()
-        self.ensure_player_stopped()
-
-        try:
-            self.current_track = self.server.get_track_info(track_id)
-            logger.info(f"Current track set to: {self.current_track.title}")
-
-        except Spotifice.TrackError as e:
-            logger.error(f"Error setting track: {e.reason}")
-            raise
-
-    def get_current_track(self, current=None):
-        return self.current_track
-
-    # --- RenderConnectivity ---
-    def bind_media_server(self, media_server, current=None):
-        try:
-            proxy = media_server.ice_timeout(500)
-            proxy.ice_ping()
-        except Ice.ConnectionRefusedException as e:
-            raise Spotifice.BadReference(reason=f"MediaServer not reachable: {e}")
-
-        self.server = media_server
-        logger.info(f"Bound to MediaServer '{id2str(media_server.ice_getIdentity())}'")
-
-    def unbind_media_server(self, current=None):
-        self.server = None
-        logger.info("Unbound MediaServer")
 
 
 def main(ic, player):
