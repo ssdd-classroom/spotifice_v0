@@ -11,14 +11,15 @@ class TestRender(IceTestCase):
     server_port = 10000
 
     def setUp(self):
-        player = GstPlayer(daemon=True)
-        player.start()
-
         server_props = {
             'MediaServerAdapter.Endpoints': f'tcp -p {self.server_port}',
             'MediaServer.Content': 'test/media'}
         server_endpoint = f'mediaServer1:default -p {self.server_port} -t 500'
         self.create_server(server_main, server_props)
+
+        player = GstPlayer()
+        player.start()
+        self.addCleanup(player.shutdown)
 
         render_props = {
             'MediaRenderAdapter.Endpoints': f'tcp -p {self.render_port}'}

@@ -1,3 +1,4 @@
+import logging
 import time
 from functools import cached_property
 from threading import Thread
@@ -16,15 +17,16 @@ class IceTestCase(TestCase):
         return Ice.initialize(init_data)
 
     def wait_object_ready(self, proxy):
+        attempts = 3
         proxy = proxy.ice_timeout(500)
-        for _ in range(3):
+        for _ in range(attempts):
             try:
                 proxy.ice_ping()
                 return
             except Ice.Exception:
                 time.sleep(0.5)
 
-        self.fail('Object not ready after 3 attempts')
+        self.fail(f'Object not ready after {attempts} attempts')
 
     @cached_property
     def client_ic(self):
@@ -44,4 +46,13 @@ class IceTestCase(TestCase):
         args = (ic,) + args
         thread = Thread(target=main, args=args)
         thread.start()
-        self.addCleanup(ic.shutdown)
+        self.addCleanup(self.server_shutdown, ic, thread)
+
+    @staticmethod
+    def server_shutdown(ic, thread):
+        ic.shutdown()
+        ic.destroy()
+
+        thread.join(3)
+        if thread.is_alive():
+            logging.warning("Thread could not be joined in time")
