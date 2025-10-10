@@ -128,6 +128,9 @@ def main(ic, player):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.exit("Usage: media_render.py <config-file>")
+
     player = GstPlayer()
     player.start()
     try:

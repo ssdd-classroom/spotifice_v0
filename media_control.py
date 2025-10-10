@@ -57,5 +57,8 @@ def main(ic):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        sys.exit("Usage: media_control.py <config-file>")
+
     with Ice.initialize(sys.argv[1]) as communicator:
         main(communicator)
