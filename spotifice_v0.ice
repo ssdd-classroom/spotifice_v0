@@ -54,5 +54,5 @@ module Spotifice {
         idempotent void stop() throws PlayerError;
     };
 
-    interface MediaRender extends RenderConnectivity, ContentManager,  PlaybackController {};
+    interface MediaRender extends RenderConnectivity, ContentManager, PlaybackController {};
 };

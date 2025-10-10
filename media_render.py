@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from contextlib import contextmanager
 
 import Ice
 from Ice import identityToString as id2str
@@ -49,10 +50,11 @@ class MediaRenderI(Spotifice.MediaRender):
 
     def load_track(self, track_id, current=None):
         self.ensure_server_bound()
-        self.ensure_player_stopped()
 
         try:
-            self.current_track = self.server.get_track_info(track_id)
+            with self.keep_playing_state(current):
+                self.current_track = self.server.get_track_info(track_id)
+
             logger.info(f"Current track set to: {self.current_track.title}")
 
         except Spotifice.TrackError as e:
@@ -63,6 +65,17 @@ class MediaRenderI(Spotifice.MediaRender):
         return self.current_track
 
     # --- PlaybackController ---
+
+    @contextmanager
+    def keep_playing_state(self, current):
+        playing = self.player.is_playing()
+        if playing:
+            self.stop(current)
+        try:
+            yield
+        finally:
+            if playing:
+                self.play(current)
 
     def play(self, current=None):
         def get_chunk_hook(chunk_size):
